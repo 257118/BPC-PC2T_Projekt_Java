@@ -1,4 +1,11 @@
 package projekt;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,10 +62,10 @@ public class Knihovna  {
 	    System.out.println("Zadaj nazov knihy na upravu: ");
 	    String hladanaKniha = sc.nextLine();
 
-	    Kniha najdenaKniha = null; // Oprava: inicializace proměnné najdenaKniha
+	    Kniha najdenaKniha = null; 
 	    for (Kniha kniha : knihy) {
 	        if (kniha.getNazov().equalsIgnoreCase(hladanaKniha)) {
-	            najdenaKniha = kniha; // Oprava: při nalezení nastavíme proměnnou najdenaKniha
+	            najdenaKniha = kniha;
 	            break;
 	        }
 	    }
@@ -222,7 +229,100 @@ public class Knihovna  {
 		        System.out.println("Nazov: " + kniha.getNazov());
 		    }
 		    System.out.println();
+		    
+	}
+	public void knihyPodlaZanru() {
+		System.out.println("Zadaj zaner knihy: ");
+		String hladanyZaner=sc.nextLine();
+		boolean najdenyZaner=false;
+		List<Kniha>knihyPodlaZanru=new ArrayList<>();
 		
+		for (Kniha kniha:knihy) {
+			if (kniha instanceof Roman) {
+				Roman roman=(Roman) kniha;
+				if (roman.getZaner().equalsIgnoreCase(hladanyZaner)) {
+					knihyPodlaZanru.add(kniha);
+					
+				}
+			}
+		}
+		if (knihyPodlaZanru.isEmpty()) {
+			System.out.println("Knihy zanru"+hladanyZaner+"sa nenachadzaju v knihovne.");
+			
+		}else {
+			for (Kniha kniha:knihyPodlaZanru) {
+				System.out.println("Nazov: "+kniha.getNazov());
+			}
+		}
+	}
+	public void pozicaneKnihy() {
+		for (Kniha kniha:knihy) {
+			if(!kniha.isDostupnost()) {
+				String typKnihy =kniha instanceof Roman ? "Roman": kniha instanceof Ucebnice? "Ucebnice" : "Chybny typ";
+				System.out.println("Nazov: "+kniha.getNazov()+"Typ knihy: "+typKnihy);
+			}
+		}
+	}
+	public void ulozKnihuDoSuboru() {
+		System.out.println("Zadaj nazov knihy na uolzenie do suboru: ");
+		String hladanaKniha=sc.nextLine();
+		Kniha najdenaKniha=null;
+		for (Kniha kniha:knihy) {
+			if (kniha.getNazov().equalsIgnoreCase(hladanaKniha)) {
+				najdenaKniha=kniha;
+				break;
+			}
+		}
+		if (najdenaKniha==null) {
+			System.out.println("Kniha "+hladanaKniha+" nebola najdena.");
+		}
+		else {
+			File subor =new File(hladanaKniha+".txt");
+			try {
+				FileWriter fw=new FileWriter(subor);
+				BufferedWriter bw=new BufferedWriter(fw);
+				
+			bw.write("Nazov: "+najdenaKniha.getNazov()+ "\n");
+			bw.write("Autor/Autory: "+String.join(", ",najdenaKniha.getAutor())+"\n");
+			bw.write("Rok vydania: "+najdenaKniha.getRok()+"\n");
+			bw.write("Dostupnost: "+(najdenaKniha.isDostupnost()?"Ano":"Ne")+"\n");
+			if (najdenaKniha instanceof Roman) {
+				Roman roman=(Roman)najdenaKniha;
+				bw.write("Zaner: "+roman.getZaner()+ "\n");
+			}
+			else if (najdenaKniha instanceof Ucebnice) {
+				Ucebnice ucebnice=(Ucebnice)najdenaKniha;
+				bw.write("Rocnik:"+ ucebnice.getRocnik()+"\n");
+			}
+			bw.close();
+			System.out.println("Kniha bola uspesne ulozena do suboru.");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println("Pri zapise knihy do suboru sa vyskytla chyba: "+e.getMessage());
+			}
+			
+		}
+		
+	}
+	public void nactiKnihuZoSuboru() {
+		System.out.println("Zadaj nazov knihy: ");
+		String hladanaKniha=sc.nextLine();
+		File subor=new File(hladanaKniha+".txt");
+		if (!subor.exists()) {
+			System.out.println("Subor s nazvom "+subor.getName()+" neexistuje.");
+			return;
+		}
+		try {
+			BufferedReader br=new BufferedReader(new FileReader(subor));
+			String line;
+			while((line=br.readLine())!=null) {
+				System.out.println(line);
+			}
+			br.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Chyba pri nacitani suboru: "+e.getMessage());
+		}
 	}
 		
 	
@@ -232,14 +332,18 @@ public class Knihovna  {
 
 	    while (true) {
 	        System.out.println("Zvolte moznost:");
-	        System.out.println("1. Pridat novou knihu");
-	        System.out.println("2. Upravit knihu");
-	        System.out.println("3. Odstranit knihu");
-	        System.out.println("4. Oznacit knihu ako vypozicanu/vratenu");
-	        System.out.println("5. Vypis knihy");
-	        System.out.println("6  Vyhladat knihu:");
-	        System.out.println("7. Vypis knih podla autora");
-	        System.out.println("8. Konec");
+	        System.out.println("1.  Pridat novou knihu");
+	        System.out.println("2.  Upravit knihu");
+	        System.out.println("3.  Odstranit knihu");
+	        System.out.println("4.  Oznacit knihu ako vypozicanu/vratenu");
+	        System.out.println("5.  Vypis knihy");
+	        System.out.println("6   Vyhladat knihu:");
+	        System.out.println("7.  Vypis knih podla autora");
+	        System.out.println("8.  Vypis knih podla zanru");
+	        System.out.println("9.  Vypis vypozicanych knih");
+	        System.out.println("10. Zapis knihy do suboru.");
+	        System.out.println("11. Nacitanie knihy zo suboru.");
+	        System.out.println("12. Konec");
 
 	        int volba = sc.nextInt();
 	        sc.nextLine();
@@ -268,6 +372,17 @@ public class Knihovna  {
 	            	knihovna.knihyPodlaAutora();
 	            	break;
 	            case 8:
+	            	knihovna.knihyPodlaZanru();
+	            	break;
+	            case 9:
+	            	knihovna.pozicaneKnihy();
+	            case 10:
+	            	knihovna.ulozKnihuDoSuboru();
+	            	break;
+	            case 11:
+	            	knihovna.nactiKnihuZoSuboru();
+	            	break;
+	            case 12:
 	                System.out.println("Ukončení programu.");
 	                sc.close();
 	                return;
