@@ -1,4 +1,4 @@
-package projekt;
+ package projekt;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,9 +15,13 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Knihovna  {
+	private Connect connect;
+
 	private List<Kniha> knihy;
+	
 	Scanner sc =new Scanner(System.in);
 		public Knihovna() {
+			this.connect=new Connect();
 			this.knihy=new ArrayList<>();
 		}
 	public void pridatKnihu() {
@@ -177,6 +181,8 @@ public class Knihovna  {
 			}
 			System.out.println("Rok vydania: "+kniha.getRok());
             System.out.println("Stav dostupnosti: " + (kniha.isDostupnost() ? "K dispozici" : "Vypozicane"));
+            System.out.println();
+            
 
 		}
 		
@@ -190,7 +196,7 @@ public class Knihovna  {
 		for (Kniha kniha:knihy) {
 			if(kniha.getNazov().equalsIgnoreCase(hladanaKniha)) {
 				System.out.println("Nazov knihy: "+kniha.getNazov());
-				System.out.println("Autor/Autori: "+String.join(",",kniha.getAutor()));
+				System.out.println("Autor: "+String.join(",",kniha.getAutor()));
 				if (kniha instanceof Roman) {
 					System.out.println("Zaner: "+((Roman)kniha).getZaner());
 				}
@@ -324,11 +330,44 @@ public class Knihovna  {
 			System.out.println("Chyba pri nacitani suboru: "+e.getMessage());
 		}
 	}
+	public void ulozKnihyDoSqlDatabaze() {
+		Connect connect=new Connect();
+		connect.connect();
+		connect.createTable();
+	
+		for(Kniha kniha:knihy) {
+			connect.insertKniha(
+			 kniha.getNazov(),
+             String.join(", ", kniha.getAutor()),
+             kniha.getRok(),
+             kniha.isDostupnost(),
+             kniha instanceof Roman ? ((Roman) kniha).getZaner() : null,
+             kniha instanceof Ucebnice ? ((Ucebnice) kniha).getRocnik() : null
+         );
+			
+		}
+		System.out.println("Knihy boli ulozene do databaze,");
+		connect.disconnect();
+		
+		
+	}
+	public void nacitajKnihyZDatabaze() {
+		Connect connect=new Connect();
+		connect.connect();
+		List<Kniha>nacitaneKnihy=(List<Kniha>) connect.selectAll();
+		knihy.addAll(nacitaneKnihy);
+		connect.disconnect();
+		
+		
+	}
 		
 	
 	public static void main(String[] args) {
 	    Scanner sc = new Scanner(System.in);
 	    Knihovna knihovna = new Knihovna();
+	    Connect connect=new Connect();
+	    knihovna.nacitajKnihyZDatabaze();
+	    
 
 	    while (true) {
 	        System.out.println("Zvolte moznost:");
@@ -383,6 +422,7 @@ public class Knihovna  {
 	            	knihovna.nactiKnihuZoSuboru();
 	            	break;
 	            case 12:
+	            	knihovna.ulozKnihyDoSqlDatabaze();
 	                System.out.println("Ukončení programu.");
 	                sc.close();
 	                return;
