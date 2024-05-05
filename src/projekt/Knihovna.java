@@ -61,7 +61,7 @@ public class Knihovna  {
 		}
 				
 	      knihy.add(novaKniha);
-	        System.out.println("Knihy byla přidána do knihovny.");
+	        System.out.println("Kniha bola pridana do knihovny.");
 	    }
 	public void upravaKnihy() {
 	    System.out.println("Zadaj nazov knihy na upravu: ");
@@ -79,12 +79,13 @@ public class Knihovna  {
 	        return;
 	    }
 
-	    System.out.println("Vyberte, co chcete upravit:");
-	    System.out.println("1. Autor/autory");
+	    System.out.println("Vyberte, co chcete upravit: ");
+	    System.out.println("1. Autor/autori");
 	    System.out.println("2. Rok vydania");
 	    System.out.println("3. Stav dostupnosti");
 	    int volba = sc.nextInt();
 	    sc.nextLine();
+	    
 
 	    switch (volba) {
 	        case 1:
@@ -96,11 +97,12 @@ public class Knihovna  {
 	        case 2:
 	            System.out.println("Zadaj novy rok vydania: ");
 	            int novyRok = sc.nextInt();
+	            sc.nextLine();
 	            najdenaKniha.setRok(novyRok);
 	            break;
 	        case 3:
 	            System.out.println("Je kniha dostupna?(ano/ne)");
-	            boolean novaDostupnost = sc.next().equalsIgnoreCase("ano");
+	            boolean novaDostupnost = sc.nextLine().equalsIgnoreCase("ano");
 	            najdenaKniha.setDostupnost(novaDostupnost);
 	            break;
 	        default:
@@ -119,22 +121,22 @@ public class Knihovna  {
 	
 	public void odstranKnihu() {
 	    System.out.println("Zadaj nazov knihy, ktora sa ma odstranit: ");
-	    String hladanaKnihaNazov = sc.nextLine();
+	    String hladanaKniha = sc.nextLine();
 	    Kniha odstranenaKniha = null;
 
 	    Iterator<Kniha> iterator = knihy.iterator();
 	    while (iterator.hasNext()) {
 	        Kniha kniha = iterator.next();
-	        if (kniha.getNazov().equalsIgnoreCase(hladanaKnihaNazov)) {
+	        if (kniha.getNazov().equalsIgnoreCase(hladanaKniha)) {
 	            odstranenaKniha = kniha;
 	            iterator.remove();
-	            System.out.println("Kniha " + hladanaKnihaNazov + " bola uspesne odstranena.");
+	            System.out.println("Kniha " + hladanaKniha + " bola uspesne odstranena.");
 	            break;
 	        }
 	    }
 
 	    if (odstranenaKniha == null) {
-	        System.out.println("Kniha " + hladanaKnihaNazov + " sa nenachadza v knihovne");
+	        System.out.println("Kniha " + hladanaKniha + " sa nenachadza v knihovne");
 	    } else {
 	        
 	        odstraneneKnihy.add(odstranenaKniha);
@@ -213,7 +215,7 @@ public class Knihovna  {
 	            break;
 			}
 			 if (!najdenaKniha) {
-			        System.out.println("Kniha s názvom '" + hladanaKniha + "' sa nenachádza v knihovne.");
+			        System.out.println("Kniha s nazvom '" + hladanaKniha + "' sa nenachadza v knihovne.");
 			 }
 		}
 		
@@ -235,7 +237,7 @@ public class Knihovna  {
 	        return;
 		}
 		 knihyAutora.sort(Comparator.comparingInt(Kniha::getRok));
-		 System.out.println("Knihy od autora " + hladanyAutor + " v chronologickom poradí:");
+		 System.out.println("Knihy od autora " + hladanyAutor + " v chronologickom poradi:");
 		    for (Kniha kniha : knihyAutora) {
 		        System.out.println("Nazov: " + kniha.getNazov());
 		    }
@@ -297,7 +299,7 @@ public class Knihovna  {
 				BufferedWriter bw=new BufferedWriter(fw);
 				
 			bw.write("Nazov: "+najdenaKniha.getNazov()+ "\n");
-			bw.write("Autor/Autory: "+String.join(", ",najdenaKniha.getAutor())+"\n");
+			bw.write("Autor/Autori: "+String.join(", ",najdenaKniha.getAutor())+"\n");
 			bw.write("Rok vydania: "+najdenaKniha.getRok()+"\n");
 			bw.write("Dostupnost: "+(najdenaKniha.isDostupnost()?"Ano":"Ne")+"\n");
 			if (najdenaKniha instanceof Roman) {
@@ -364,85 +366,19 @@ public class Knihovna  {
 		
 	}
 	public void nacitajKnihyZDatabaze() {
-		Connect connect=new Connect();
-		connect.connect();
-		List<Kniha>nacitaneKnihy=(List<Kniha>) connect.selectAll();
-		knihy.addAll(nacitaneKnihy);
-		connect.disconnect();
-		
-		
+	    Connect connect = new Connect();
+	    try {
+	        connect.connect();
+	        List<Kniha> nacitaneKnihy = (List<Kniha>) connect.selectAll();
+	        knihy.addAll(nacitaneKnihy);
+	        System.out.println("Knihy boli nacitane z databazy.");
+	    } catch (Exception e) {
+	        System.out.println("Chyba pri nacitani knh z databazy: " + e.getMessage());
+	    } finally {
+	        connect.disconnect();
+	    }
 	}
 		
 	
-	public static void main(String[] args) {
-	    Scanner sc = new Scanner(System.in);
-	    Knihovna knihovna = new Knihovna();
-	    Connect connect=new Connect();
-	    knihovna.nacitajKnihyZDatabaze();
-	    
 
-	    while (true) {
-	    	System.out.println();
-	        System.out.println("Zvolte moznost:");
-	        System.out.println("1.  Pridat novou knihu");
-	        System.out.println("2.  Upravit knihu");
-	        System.out.println("3.  Odstranit knihu");
-	        System.out.println("4.  Oznacit knihu ako vypozicanu/vratenu");
-	        System.out.println("5.  Vypis knihy");
-	        System.out.println("6   Vyhladat knihu:");
-	        System.out.println("7.  Vypis knih podla autora");
-	        System.out.println("8.  Vypis knih podla zanru");
-	        System.out.println("9.  Vypis vypozicanych knih");
-	        System.out.println("10. Zapis knihy do suboru.");
-	        System.out.println("11. Nacitanie knihy zo suboru.");
-	        System.out.println("12. Konec");
-
-	        int volba = sc.nextInt();
-	        sc.nextLine();
-	        
-
-	        switch (volba) {
-	            case 1:
-	                knihovna.pridatKnihu();
-	                break;
-	            case 2:
-	                knihovna.upravaKnihy();
-	                break;
-	            case 3:
-	                knihovna.odstranKnihu();
-	                break;
-	            case 4:
-	                knihovna.stavKnihy();
-	                break;
-	            case 5:
-	                knihovna.vypisKnih();
-	                break;
-	            case 6:
-	            	knihovna.vyhladatKnihu();
-	            	break;
-	            case 7:
-	            	knihovna.knihyPodlaAutora();
-	            	break;
-	            case 8:
-	            	knihovna.knihyPodlaZanru();
-	            	break;
-	            case 9:
-	            	knihovna.pozicaneKnihy();
-	            	break;
-	            case 10:
-	            	knihovna.ulozKnihuDoSuboru();
-	            	break;
-	            case 11:
-	            	knihovna.nactiKnihuZoSuboru();
-	            	break;
-	            case 12:
-	            	knihovna.ulozKnihyDoSqlDatabaze();
-	                System.out.println("Ukončení programu.");
-	                sc.close();
-	                return;
-	            default:
-	                System.out.println("Neplatná volba. Zkuste to znovu.");
-	        }
-	    }
-	}
 }
