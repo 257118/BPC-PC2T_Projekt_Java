@@ -113,6 +113,18 @@ public class Connect {
 	    }
 	    return knihy;
 	}
+	public void deleteKniha(String nazov) {
+        String sql = "DELETE FROM knihy WHERE Nazov = ?";
+
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, nazov);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 	public void disconnect() { 
 		if (conn != null) {
 		       try {     
