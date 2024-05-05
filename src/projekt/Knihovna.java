@@ -16,7 +16,8 @@ import java.util.Scanner;
 
 public class Knihovna  {
 	private Connect connect;
-
+	
+	private List<Kniha> odstraneneKnihy = new ArrayList<>();
 	private List<Kniha> knihy;
 	
 	Scanner sc =new Scanner(System.in);
@@ -118,22 +119,25 @@ public class Knihovna  {
 	
 	public void odstranKnihu() {
 	    System.out.println("Zadaj nazov knihy, ktora sa ma odstranit: ");
-	    String hladanaKniha = sc.nextLine();
-	    boolean najdenaKniha = false;
+	    String hladanaKnihaNazov = sc.nextLine();
+	    Kniha odstranenaKniha = null;
 
 	    Iterator<Kniha> iterator = knihy.iterator();
 	    while (iterator.hasNext()) {
 	        Kniha kniha = iterator.next();
-	        if (kniha.getNazov().equalsIgnoreCase(hladanaKniha)) {
+	        if (kniha.getNazov().equalsIgnoreCase(hladanaKnihaNazov)) {
+	            odstranenaKniha = kniha;
 	            iterator.remove();
-	            najdenaKniha = true;
-	            System.out.println("Kniha " + hladanaKniha + " bola uspesne odstranena.");
+	            System.out.println("Kniha " + hladanaKnihaNazov + " bola uspesne odstranena.");
 	            break;
 	        }
 	    }
 
-	    if (!najdenaKniha) {
-	        System.out.println("Kniha " + hladanaKniha + " sa nenachadza v knihovne");
+	    if (odstranenaKniha == null) {
+	        System.out.println("Kniha " + hladanaKnihaNazov + " sa nenachadza v knihovne");
+	    } else {
+	        
+	        odstraneneKnihy.add(odstranenaKniha);
 	    }
 	}
 	public void stavKnihy() {
@@ -212,6 +216,7 @@ public class Knihovna  {
 			        System.out.println("Kniha s názvom '" + hladanaKniha + "' sa nenachádza v knihovne.");
 			 }
 		}
+		
 	}
 	public void knihyPodlaAutora() {
 		System.out.println("Zadaj meno autora: ");
@@ -234,7 +239,7 @@ public class Knihovna  {
 		    for (Kniha kniha : knihyAutora) {
 		        System.out.println("Nazov: " + kniha.getNazov());
 		    }
-		    System.out.println();
+		   
 		    
 	}
 	public void knihyPodlaZanru() {
@@ -260,14 +265,17 @@ public class Knihovna  {
 				System.out.println("Nazov: "+kniha.getNazov());
 			}
 		}
+		System.out.println();
 	}
 	public void pozicaneKnihy() {
 		for (Kniha kniha:knihy) {
 			if(!kniha.isDostupnost()) {
 				String typKnihy =kniha instanceof Roman ? "Roman": kniha instanceof Ucebnice? "Ucebnice" : "Chybny typ";
-				System.out.println("Nazov: "+kniha.getNazov()+"Typ knihy: "+typKnihy);
+				System.out.println("Nazov: "+kniha.getNazov()+","+" Typ knihy: "+typKnihy);
 			}
 		}
+		
+	
 	}
 	public void ulozKnihuDoSuboru() {
 		System.out.println("Zadaj nazov knihy na uolzenie do suboru: ");
@@ -346,6 +354,10 @@ public class Knihovna  {
          );
 			
 		}
+		 for (Kniha kniha : odstraneneKnihy) {
+		        connect.deleteKniha(kniha.getNazov()); 
+		    }
+		    
 		System.out.println("Knihy boli ulozene do databaze,");
 		connect.disconnect();
 		
@@ -370,6 +382,7 @@ public class Knihovna  {
 	    
 
 	    while (true) {
+	    	System.out.println();
 	        System.out.println("Zvolte moznost:");
 	        System.out.println("1.  Pridat novou knihu");
 	        System.out.println("2.  Upravit knihu");
@@ -415,6 +428,7 @@ public class Knihovna  {
 	            	break;
 	            case 9:
 	            	knihovna.pozicaneKnihy();
+	            	break;
 	            case 10:
 	            	knihovna.ulozKnihuDoSuboru();
 	            	break;
